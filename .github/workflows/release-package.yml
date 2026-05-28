@@ -13,15 +13,7 @@ jobs:
       - name: Instalar pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9 # O la versión específica de pnpm que uses
-          
-      - name: Configurar Node.js
-        uses: pnpm/action-setup@v4 # En versiones recientes, setup-node se integra bien con pnpm
-        # O puedes usar actions/setup-node@v4 apuntando al cache de pnpm:
-        # uses: actions/setup-node@v4
-        # with:
-        #   node-version: 20
-        #   cache: 'pnpm'
+          version: 11 # O la versión específica de pnpm que uses
 
       - name: Instalar Node.js v20
         uses: actions/setup-node@v4
