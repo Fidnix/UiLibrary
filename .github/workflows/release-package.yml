@@ -1,0 +1,64 @@
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9 # O la versión específica de pnpm que uses
+          
+      - name: Configurar Node.js
+        uses: pnpm/action-setup@v4 # En versiones recientes, setup-node se integra bien con pnpm
+        # O puedes usar actions/setup-node@v4 apuntando al cache de pnpm:
+        # uses: actions/setup-node@v4
+        # with:
+        #   node-version: 20
+        #   cache: 'pnpm'
+
+      - name: Instalar Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile # El equivalente ultra-seguro a "npm ci"
+      - run: pnpm test
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Configurar Node.js y Registro de GitHub
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      
+      - name: Compilar librería con Vite
+        run: pnpm run build # Genera la carpeta /dist antes de publicar
+        
+      - name: Publicar en GitHub Packages
+        run: pnpm publish --no-git-checks # Evita que pnpm intente crear un tag de git interno
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
